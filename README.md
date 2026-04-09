@@ -11,6 +11,9 @@ A full-stack Geospatial application designed to digitize agricultural field repo
 
 ## 🛠️ Key Features
 
+- **Polygon Digitizer:** Professional drawing tools for mapping exact farm boundaries.
+- **Automated Spatial Analysis:** Real-time calculation of farm area in Acres using PostGIS `ST_Area`.
+- **Industrial Sidebar UI:** A dedicated interface for attribute data entry (Owner Name, Crop Type).
 - **Interactive Spatial Dashboard:** Visualize farm locations and crop data on a live map.
 - **Real-time Data Entry:** Field workers can click the map to submit crop health reports directly to the database.
 - **Spatial Database Architecture:** Uses PostGIS `geometry` types to handle coordinates accurately (EPSG:4326).

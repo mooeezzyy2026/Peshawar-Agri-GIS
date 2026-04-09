@@ -8,21 +8,19 @@ from typing import Dict
 
 app = FastAPI()
 
-# SECURITY: Allow Frontend (5500/8000) to talk to Backend (8080)
+
 app.add_middleware(CORSMiddleware, allow_origins=[
                    "*"], allow_methods=["*"], allow_headers=["*"])
 
-# DATABASE CONNECTION
+
 db_url = "postgresql://localhost:5432/moeezelahi"
 engine = create_engine(db_url)
-
-# INITIALIZE TABLES
 
 
 def init_db():
     with engine.connect() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
-        # Polygon Table
+
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS farm_boundaries (
                 id SERIAL PRIMARY KEY,
@@ -36,17 +34,11 @@ def init_db():
 
 init_db()
 
-# DATA MODELS
-
 
 class FarmBoundary(BaseModel):
     owner_name: str
     crop_type: str
     geometry: Dict
-
-# ROUTES
-
-# 1. SAVE: Receive a new farm from the map
 
 
 @app.post("/api/add-boundary")
@@ -66,14 +58,12 @@ def add_boundary(data: FarmBoundary):
         print(f"Error: {e}")
         return {"error": str(e)}
 
-# 2. READ: Send all saved farms back to the map
-
 
 @app.get("/api/get-boundaries")
 def get_boundaries():
     query = "SELECT * FROM farm_boundaries"
     try:
-        # read_postgis converts database geometry to GeoJSON automatically
+
         gdf = gpd.read_postgis(query, engine, geom_col='geometry')
         return json.loads(gdf.to_json())
     except Exception:
