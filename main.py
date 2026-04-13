@@ -8,10 +8,8 @@ from typing import Dict
 
 app = FastAPI()
 
-
 app.add_middleware(CORSMiddleware, allow_origins=[
                    "*"], allow_methods=["*"], allow_headers=["*"])
-
 
 db_url = "postgresql://localhost:5432/moeezelahi"
 engine = create_engine(db_url)
@@ -20,6 +18,17 @@ engine = create_engine(db_url)
 def init_db():
     with engine.connect() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
+
+        # Added this back so the seeder works
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS peshawar_reports (
+                id SERIAL PRIMARY KEY,
+                farmer_name TEXT,
+                crop_type TEXT,
+                health_status TEXT,
+                geometry geometry(Point, 4326)
+            );
+        """))
 
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS farm_boundaries (
@@ -63,7 +72,6 @@ def add_boundary(data: FarmBoundary):
 def get_boundaries():
     query = "SELECT * FROM farm_boundaries"
     try:
-
         gdf = gpd.read_postgis(query, engine, geom_col='geometry')
         return json.loads(gdf.to_json())
     except Exception:

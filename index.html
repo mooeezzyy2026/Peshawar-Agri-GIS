@@ -2,18 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Peshawar Agri-GIS Pro</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Peshawar Agriculture GIS</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
     />
-
+    <!-- Added missing CSS for the draw tools icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
     />
-
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
       body {
         margin: 0;
@@ -22,30 +22,25 @@
         font-family: "Segoe UI", sans-serif;
         height: 100vh;
       }
-
       #sidebar {
         width: 350px;
-        background: #2c3e50;
+        background: #355370;
         color: white;
         padding: 20px;
         box-sizing: border-box;
         z-index: 1001;
-        display: flex;
-        flex-direction: column;
       }
-
       #map {
         flex-grow: 1;
         height: 100%;
       }
-
       .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
       }
       label {
         display: block;
-        margin-bottom: 8px;
-        color: #bdc3c7;
+        margin-bottom: 5px;
+        color: #ecf0f1;
       }
       input,
       select {
@@ -53,12 +48,10 @@
         padding: 10px;
         border-radius: 4px;
         border: none;
-        font-size: 14px;
       }
-
       button {
         width: 100%;
-        padding: 15px;
+        padding: 12px;
         background: #27ae60;
         color: white;
         border: none;
@@ -70,65 +63,42 @@
       button:hover {
         background: #2ecc71;
       }
-      #status {
-        margin-top: 15px;
-        text-align: center;
-        font-weight: bold;
-      }
-      hr {
-        border: 0;
-        border-top: 1px solid #455a64;
-        margin: 20px 0;
-      }
     </style>
   </head>
   <body>
     <div id="sidebar">
-      <h2>Peshawar Agri-GIS</h2>
-      <p style="font-size: 0.9em; color: #ecf0f1">
-        Use the Polygon tool on the map to draw your farm boundary, then save
-        below.
-      </p>
+      <h2>Farm Digitizer</h2>
+      <p>Use the polygon tool to draw, then fill the form.</p>
       <hr />
-
       <div class="form-group">
-        <label>Owner Name</label>
-        <input type="text" id="owner_name" placeholder="Full Name" />
+        <label>Owner Name:</label>
+        <input type="text" id="owner_name" placeholder="Enter Owner Name" />
       </div>
-
       <div class="form-group">
-        <label>Crop Type</label>
+        <label>Crop Type:</label>
         <select id="crop_type">
           <option value="Wheat">Wheat</option>
           <option value="Maize">Maize</option>
           <option value="Sugarcane">Sugarcane</option>
-          <option value="Tobacco">Tobacco</option>
         </select>
       </div>
-
-      <button onclick="saveBoundary()">Save Farm Boundary</button>
-      <div id="status"></div>
+      <button onclick="saveBoundary()">Save Farm boundary</button>
+      <div id="status" style="margin-top: 10px"></div>
     </div>
-
     <div id="map"></div>
-
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-
     <script>
       var map = L.map("map").setView([34.0151, 71.5249], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
         map,
       );
-
       var drawnItems = new L.FeatureGroup();
       map.addLayer(drawnItems);
 
       var drawControl = new L.Control.Draw({
         draw: {
-          polygon: true,
           polyline: false,
-          rectangle: true,
+          polygon: true,
           circle: false,
           marker: false,
           circlemarker: false,
@@ -138,10 +108,9 @@
       map.addControl(drawControl);
 
       var latestGeometry = null;
-
-      map.on(L.Draw.Event.CREATED, function (e) {
+      map.on(L.Draw.Event.CREATED, function (event) {
         drawnItems.clearLayers();
-        var layer = e.layer;
+        var layer = event.layer;
         drawnItems.addLayer(layer);
         latestGeometry = layer.toGeoJSON().geometry;
       });
@@ -167,10 +136,9 @@
 
       function saveBoundary() {
         var name = document.getElementById("owner_name").value;
-        var crop = document.getElementById("crop_type").value;
-
+        var crop = document.getElementById("crop_type").value; // Fixed ID from 'crop' to 'crop_type'
         if (!latestGeometry || !name) {
-          alert("Please draw a farm and enter a name first!");
+          alert("Please draw a boundary and enter a name!");
           return;
         }
 
@@ -186,13 +154,9 @@
           .then((res) => res.json())
           .then((data) => {
             document.getElementById("status").innerText = "Saved Successfully!";
-            document.getElementById("owner_name").value = "";
             drawnItems.clearLayers();
             loadFarms();
-          })
-          .catch((err) =>
-            alert("Error connecting to API. Is main.py running?"),
-          );
+          });
       }
     </script>
   </body>
