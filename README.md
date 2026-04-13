@@ -29,7 +29,10 @@ A full-stack Geospatial application designed to digitize agricultural field repo
 
 1. **Database:** Ensure Postgres.app is running and PostGIS extension is enabled.
 2. **Backend:**
+
    ```bash
    pip install fastapi uvicorn geopandas sqlalchemy psycopg2-binary
    python3 main.py
    ```
+
+   - **Automated Data Seeding:** Includes a Python utility to generate large-scale synthetic datasets for stress-testing spatial queries.
